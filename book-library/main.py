@@ -13,16 +13,16 @@ class Book(BaseModel):
 
 # In-memory database
 books_db = []
-book_id_counter = 1
+book_id_counter = 0
 
 # Create a new book
 @app.post("/books/")
 def create_book(book: Book):
     global book_id_counter
+    book_id_counter += 1
     book.id = book_id_counter
     books_db[id] = {"id": book.id, "Title": book.title, "author": book.author, "year": book.year}
     books_db.append(book)
-    book_id_counter += 1
     return {"id": book.id, "Info": books_db[book.id] }
 
 # Retrieve all books
