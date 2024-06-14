@@ -16,36 +16,41 @@ books_db = []
 book_id_counter = 0
 
 # Create a new book
-@app.post("/books/")
+@app.post("/books/", response_model=Book)
 def create_book(book: Book):
     global book_id_counter
     book_id_counter += 1
     book.id = book_id_counter
-    books_db[id] = {"id": book.id, "Title": book.title, "author": book.author, "year": book.year}
     books_db.append(book)
-    return {"id": book.id, "Info": books_db[book.id] }
+    return book
 
 # Retrieve all books
-@app.get("/books/", )
+@app.get("/books/", response_model=List[Book])
 def get_books():
-    return {"Books": books_db}
+    return books_db
 
 # Retrieve a book by id
-@app.get("/books/{id}")
+@app.get("/books/{id}", response_model=Book)
 def get_book(id: int):
-   return books_db[id]
+    for book in books_db:
+        if book.id == id:
+            return book
+    raise HTTPException(status_code=404, detail="Book not found")
 
 # Update a book
-@app.put("/books/{id}")
+@app.put("/books/{id}", response_model=Book)
 def update_book(id: int, updated_book: Book):
-    books_db[id]["author"] = updated_book.author
-    books_db[id]["title"] = updated_book.title
-    books_db[id]["year"] = updated_book.year
-    return {"id": updated_book.id, "Info": books_db[updated_book.id] }
-    
+    for index, book in enumerate(books_db):
+        if book.id == id:
+            books_db[index] = updated_book
+            updated_book.id = id
+            return updated_book
+    raise HTTPException(status_code=404, detail="Book not found")
 
 # Delete a book
 @app.delete("/books/{id}", response_model=Book)
 def delete_book(id: int):
-    books_db.pop[id]
-    return books_db
+    for index, book in enumerate(books_db):
+        if book.id == id:
+            return books_db.pop(index)
+    raise HTTPException(status_code=404, detail="Book not found")
